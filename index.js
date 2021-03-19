@@ -4,7 +4,8 @@ var io = require('socket.io')(process.env.PORT || 29015);
 
 console.log('Server has started');
 
-var hostsockets = []
+var hostsockets = [];
+var hostRooms = {};
 io.on('connection',function(socket){
 
     
@@ -14,7 +15,6 @@ io.on('connection',function(socket){
     });
     //we employ this function when the host starts a room
     socket.on('createroom',function(){
-        hostsockets.push(socket);
         console.log('Creating room...');
         var roomCode = "";
         var badCodes = ['SHIT', 'FUCK', 'PISS', 'CUNT', 'TWAT', 'TWIT', 'FAGT', 'NIGR'];
@@ -38,19 +38,21 @@ io.on('connection',function(socket){
         }
 
         socket.join(roomCode);
+        hostsockets.push(socket);
+        hostRooms[socket] = roomCode;
         console.log('Joined room ' + roomCode);
         for(var room in io.sockets.adapter.rooms)
-            console.log(room);
+            console.log("Room: " + room);
+        console.log(hostsockets.length);
         socket.emit('roomcode',roomCode);
     });
 
     socket.on('disconnect',function(){
         console.log('Disconnected!');
-        for(var sock in hostsockets)
-            if(socket == sock)
-            {
-                
-            }
+        if(hostsockets.indexOf(socket) != -1){
+            disconnectAllRoomMembers(hostRooms[socket]);
+            removeHost(socket);
+        }
     });
 });
 
@@ -64,3 +66,20 @@ function makeRoomCode(length)
         result += characters.charAt(Math.floor(Math.random() * charLength));
     return result;
 }
+
+function removeHost(hostSocket)
+{
+    const index = hostsockets.indexOf(hostSocket);
+    if(index > -1)
+        hostsockets.splice(hostSocket);
+}
+
+function disconnectAllRoomMembers(room)
+{
+    var members = [];
+    for(var member in io.sockets.adapter.rooms[room].sockets)
+        members.push(member);
+    for(var member in members)
+    member.disconnect();
+}
+
