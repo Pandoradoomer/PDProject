@@ -10,6 +10,7 @@ var hostsockets = [];
 var hostRooms = {};
 
 io.on('connection',function(socket){
+    console.log("new connection");
     socket.on("connect_error", (err) =>
     {
         console.log('connect_error due to ${err.message}');
