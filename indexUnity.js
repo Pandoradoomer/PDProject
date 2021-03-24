@@ -2,7 +2,7 @@ const { removeAllListeners } = require('nodemon');
 
 
 
-const io = require('socket.io')(3000, {transports: ['websocket', 'polling']});
+const io = require('socket.io')(process.env.PORT||3000, {transports: ['websocket', 'polling']});
 
 console.log('Server has started');
 
