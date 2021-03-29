@@ -11,6 +11,7 @@ var hostRooms = {};
 
 io.on('connection',function(socket){
     console.log("new connection");
+    socket.emit('serverconnect');
     socket.on("connect_error", (err) =>
     {
         console.log('connect_error due to ${err.message}');
@@ -45,10 +46,7 @@ io.on('connection',function(socket){
             io.in(room).emit('roomjoin', socket.nickname);
         }
     });
-    socket.on('hasconnected',function(){
-        console.log('Connected!');
-        socket.emit('serverconnect');
-    });
+    
     //we employ this function when the host starts a room
     socket.on('createroom',function(){
         console.log('Creating room...');
